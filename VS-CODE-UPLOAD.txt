@@ -1,0 +1,35 @@
+GOLDENCARE V2 — העלאה דרך VS CODE
+==================================
+
+1. חלץ את קובץ ה-ZIP.
+2. פתח ב-VS Code את התיקייה GoldenCare-v2 עצמה.
+3. פתח Terminal חדש מתוך VS Code.
+4. בדיקה מקומית:
+
+   npm install
+   npm run build
+   npm run dev
+
+5. לאחר שהבדיקה תקינה, העלה למאגר הקיים:
+
+   git init
+   git add .
+   git commit -m "GoldenCare v2 payments and attendance update"
+   git branch -M main
+   git remote add origin https://github.com/eyalmuallem/GoldenCare.git
+   git push -u origin main --force
+
+אם מתקבלת הודעה שה-remote בשם origin כבר קיים, הרץ במקום שורת remote add:
+
+   git remote set-url origin https://github.com/eyalmuallem/GoldenCare.git
+
+ואז שוב:
+
+   git push -u origin main --force
+
+לאחר ה-push:
+- פתח GitHub > Actions.
+- המתן שהפעולה Deploy GoldenCare to GitHub Pages תסומן בירוק.
+- רענן את האתר באמצעות Command + Shift + R.
+
+אין צורך לשנות דבר ב-Firebase עבור עדכון זה, כל עוד Authentication, Firestore Rules והדומיין כבר הוגדרו בגרסה הקודמת.

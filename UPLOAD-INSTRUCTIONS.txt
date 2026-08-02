@@ -1,0 +1,25 @@
+GOLDENCARE — העלאה נכונה ל-GitHub
+=================================
+
+חשוב: יש להעלות את הקבצים שבתיקייה הזו ישירות לשורש המאגר.
+אין להעלות תיקיית goldencare נוספת שעוטפת את הפרויקט.
+
+ברמת השורש של המאגר צריכים להופיע בין היתר:
+- index.html
+- package.json
+- vite.config.js
+- src
+- public
+- .github
+
+לאחר ההעלאה:
+1. פתח GitHub > Settings > Pages.
+2. תחת Build and deployment בחר Source: GitHub Actions.
+3. פתח את לשונית Actions והמתן לסיום התהליך Deploy GoldenCare to GitHub Pages.
+4. לאחר סימון ירוק, האתר יהיה בכתובת:
+   https://eyalmuallem.github.io/GoldenCare/
+
+אם העלית קבצים דרך אתר GitHub:
+- מחק קודם את תיקיית goldencare הישנה מהמאגר.
+- העלה את תוכן ה-ZIP המתוקן לשורש המאגר.
+- ודא שגם התיקייה .github הועלתה. היא מוסתרת לעיתים במחשב Mac.

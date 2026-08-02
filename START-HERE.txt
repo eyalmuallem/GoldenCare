@@ -1,0 +1,24 @@
+GOLDENCARE — התחלה מהירה
+========================
+
+1. פתח Firebase Console וצור פרויקט חדש.
+2. הפעל Authentication מסוג Email/Password.
+3. צור Cloud Firestore במצב Production.
+4. העתק את תוכן firestore.rules ללשונית Rules ולחץ Publish.
+5. צור Web App והדבק את firebaseConfig בתוך public/firebase-config.js.
+6. צור משתמש מנהל ראשון ב-Authentication > Users.
+7. הרצה מקומית:
+
+   npm install
+   npm run dev
+
+8. התחבר, הקם את המועדון, ובדוק יצירת קבוצה ומתאמן.
+9. העלה את כל התיקייה ל-GitHub.
+10. ב-Settings > Pages בחר Source: GitHub Actions.
+11. הוסף ל-Firebase Authorized domains את:
+
+    YOUR-USERNAME.github.io
+
+בפרויקט Firebase חדש ייתכן שצריך להוסיף גם localhost לצורך בדיקה מקומית.
+
+הסבר מפורט נמצא בקובץ README-HE.md.

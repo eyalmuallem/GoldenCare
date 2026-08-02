@@ -1,0 +1,129 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function hasProfile() {
+      return signedIn() && exists(userPath());
+    }
+
+    function profile() {
+      return get(userPath()).data;
+    }
+
+    function activeUser() {
+      return hasProfile() && profile().active == true;
+    }
+
+    function sameOrg(orgId) {
+      return activeUser() && profile().orgId == orgId;
+    }
+
+    function isAdmin(orgId) {
+      return sameOrg(orgId) && profile().role == 'admin';
+    }
+
+    function groupExists(orgId, groupId) {
+      return exists(/databases/$(database)/documents/organizations/$(orgId)/groups/$(groupId));
+    }
+
+    function isCoachForGroup(orgId, groupId) {
+      return isAdmin(orgId) || (
+        sameOrg(orgId) &&
+        profile().role == 'coach' &&
+        groupExists(orgId, groupId) &&
+        get(/databases/$(database)/documents/organizations/$(orgId)/groups/$(groupId)).data.coachId == request.auth.uid
+      );
+    }
+
+    match /users/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+
+      // המשתמש הראשון רשאי להקים לעצמו מועדון שבו orgId שווה ל-UID שלו.
+      // לאחר מכן רק מנהל פעיל באותו מועדון רשאי ליצור או לעדכן פרופילים.
+      allow create: if signedIn() && (
+        (request.auth.uid == uid &&
+         request.resource.data.uid == uid &&
+         request.resource.data.orgId == uid &&
+         request.resource.data.role == 'admin' &&
+         request.resource.data.active == true)
+        ||
+        (isAdmin(request.resource.data.orgId) &&
+         request.resource.data.uid == uid)
+      );
+
+      allow update: if isAdmin(resource.data.orgId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.orgId == resource.data.orgId;
+
+      allow list, delete: if false;
+    }
+
+    match /organizations/{orgId} {
+      allow create: if signedIn()
+        && request.auth.uid == orgId
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow read: if sameOrg(orgId);
+      allow update: if isAdmin(orgId);
+      allow delete: if false;
+
+      match /staff/{uid} {
+        allow get: if isAdmin(orgId) || (sameOrg(orgId) && request.auth.uid == uid);
+        allow list: if isAdmin(orgId);
+        allow create: if isAdmin(orgId) || (
+          signedIn() &&
+          request.auth.uid == uid &&
+          orgId == uid &&
+          request.resource.data.role == 'admin'
+        );
+        allow update: if isAdmin(orgId)
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.orgId == resource.data.orgId;
+        allow delete: if isAdmin(orgId);
+      }
+
+      match /groups/{groupId} {
+        allow read: if isAdmin(orgId) || (
+          sameOrg(orgId) &&
+          profile().role == 'coach' &&
+          resource.data.coachId == request.auth.uid
+        );
+        allow create, update: if isAdmin(orgId);
+        allow delete: if false;
+      }
+
+      match /children/{childId} {
+        // מאמנים רשאים לקרוא פרטי קשר בסיסיים של ילדי אותו מועדון.
+        // מידע כספי אינו נשמר במסמך הילד.
+        allow read: if sameOrg(orgId);
+        allow create, update, delete: if isAdmin(orgId);
+      }
+
+      match /enrollments/{enrollmentId} {
+        allow read: if isAdmin(orgId) || isCoachForGroup(orgId, resource.data.groupId);
+        allow create, update, delete: if isAdmin(orgId);
+      }
+
+      match /charges/{chargeId} {
+        // חיובים, הנחות ואמצעי תשלום זמינים למנהלים בלבד.
+        allow read, create, update, delete: if isAdmin(orgId);
+      }
+
+      match /sessions/{sessionId} {
+        allow read: if isAdmin(orgId) || isCoachForGroup(orgId, resource.data.groupId);
+        allow create: if isCoachForGroup(orgId, request.resource.data.groupId);
+        allow update: if isCoachForGroup(orgId, resource.data.groupId)
+          && request.resource.data.groupId == resource.data.groupId
+          && request.resource.data.date == resource.data.date;
+        allow delete: if false;
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "goldencare",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "node scripts/check-syntax.mjs"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "dependencies": {
+    "firebase": "12.16.0",
+    "lucide-react": "1.27.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-router-dom": "7.18.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.0.4",
+    "vite": "8.1.5",
+    "typescript": "5.9.3"
+  }
+}
